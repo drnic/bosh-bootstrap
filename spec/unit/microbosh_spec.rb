@@ -24,4 +24,23 @@ describe Bosh::Bootstrap::Microbosh do
   xit "re-deploys failed microbosh deployment" do
     subject.deploy
   end
+
+  describe "setup user" do
+    before do
+      setting "address.ip", "1.2.3.4"
+    end
+    let(:host) { "1.2.3.4" }
+    it "prompts of user/pass on first time" do
+      subject.should_receive(:sh).with("bundle exec bosh -n -u admin -p admin target https://#{host}:25555")
+      subject.should_receive(:sh).with("bundle exec bosh -n login admin admin").and_return("Logged in as `admin'")
+      subject.should_receive(:sh).with("bundle exec bosh create user")
+      subject.prepare_user(settings)
+    end
+
+    it "does not prompt for user/pass if not admin/admin" do
+      subject.should_receive(:sh).with("bundle exec bosh -n -u admin -p admin target https://#{host}:25555")
+      subject.should_receive(:sh).with("bundle exec bosh -n login admin admin").and_return("Cannot log in as `admin'")
+      subject.prepare_user(settings)
+    end
+  end
 end

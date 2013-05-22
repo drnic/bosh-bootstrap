@@ -33,9 +33,6 @@ class Bosh::Bootstrap::Microbosh
   end
 
   def deploy(settings)
-    @bosh_name = settings.bosh.name
-    @deployments_dir = File.join(base_path, "deployments")
-    @manifest_yml = File.join(deployments_dir, bosh_name, "micro_bosh.yml")
     mkdir_p(File.dirname(manifest_yml))
     chdir(base_path) do
       setup_base_path
@@ -44,7 +41,23 @@ class Bosh::Bootstrap::Microbosh
     end
   end
 
+  def prepare_user(settings)
+    
+  end
+
   protected
+  def bosh_name
+    settings.bosh.name
+  end
+
+  def deployments_dir
+    @deployments_dir ||= File.join(base_path, "deployments")
+  end
+
+  def manifest_yml
+    @manifest_yml ||= File.join(deployments_dir, bosh_name, "micro_bosh.yml")
+  end
+
   def setup_base_path
     gempath = File.expand_path("../../..", __FILE__)
     pwd = File.expand_path(".")
